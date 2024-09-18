@@ -16,10 +16,23 @@ switch (op) {
     const description = moreArgs[1];
     updateTask(id, description);
   }
-  case "mark-in-progress":
+  case "mark-in-progress": {
+    const id = moreArgs[0];
+    markInProgress(id);
     break;
-  case "mark-down":
+  }
+  case "mark-down": {
+    const id = moreArgs[0];
+    markDone(id);
     break;
+  }
+  case "list": {
+    let option = undefined;
+    if (moreArgs.length >= 1) {
+      option = moreArgs[0];
+    }
+    list(option);
+  }
   default:
     break;
 }
@@ -48,6 +61,52 @@ function updateTask(id, newDescription) {
       return {
         ...task,
         description: newDescription,
+        updatedAt: now,
+      };
+    } else {
+      return task;
+    }
+  });
+  writeTasks(newTasks);
+}
+
+function markInProgress(id) {
+  const tasks = readTasks();
+  const newTasks = tasks.map((task) => {
+    if (task.id === id) {
+      return {
+        ...task,
+        status: "in-progress",
+        updatedAt: now,
+      };
+    } else {
+      return task;
+    }
+  });
+  writeTasks(newTasks);
+}
+
+function printTasks(tasks) {
+  tasks.forEach((task) => {
+    console.log(task);
+  });
+}
+
+function list(option) {
+  let newTasks = readTasks();
+  if (option || ["done", "todo", "in-progress"].includes(option)) {
+    newTasks = newTasks.filter((task) => task.status === option);
+  }
+  printTasks(newTasks);
+}
+
+function markDone(id) {
+  const tasks = readTasks();
+  const newTasks = tasks.map((task) => {
+    if (task.id === id) {
+      return {
+        ...task,
+        status: "Done",
         updatedAt: now,
       };
     } else {
